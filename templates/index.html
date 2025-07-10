@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% block title %}Welcome to Farm Market Hub{% endblock
+%} {% block content %}
+<div class="container mt-4">
+  <div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold">Welcome to Farm Market Hub!</h1>
+      <p class="col-md-8 fs-4">
+        Your direct link to fresh, local produce from farmers in the Bicol
+        region and beyond. Browse products, check market prices, and support
+        local agriculture.
+      </p>
+      <a
+        href="{{ url_for('main.browse_products') }}"
+        class="btn btn-success btn-lg me-2"
+        type="button"
+      >
+        <i class="fa-solid fa-store me-2"></i>Browse Farmer Products
+      </a>
+      <a
+        href="{{ url_for('main.market_prices') }}"
+        class="btn btn-outline-secondary btn-lg"
+        type="button"
+      >
+        <i class="fa-solid fa-chart-line me-2"></i>Check Market Prices
+      </a>
+    </div>
+  </div>
+
+  <div class="row align-items-md-stretch">
+    <div class="col-md-6 mb-4">
+      <div class="h-100 p-5 text-white bg-success rounded-3">
+        <h2>Are You a Farmer?</h2>
+        <p>
+          Register today to list your produce, reach more customers, and manage
+          your farm details all in one place.
+        </p>
+        {% if not current_user.is_authenticated %}
+        <a
+          href="{{ url_for('main.register') }}"
+          class="btn btn-outline-light"
+          type="button"
+        >
+          <i class="fa-solid fa-user-plus me-2"></i>Register Now
+        </a>
+        {% elif current_user.is_farmer %}
+        <a
+          href="{{ url_for('main.farmer_manage_listings') }}"
+          class="btn btn-outline-light"
+          type="button"
+        >
+          <i class="fa-solid fa-list-check me-2"></i>Manage Your Listings
+        </a>
+        {% else %}
+        <a
+          href="{{ url_for('main.register') }}"
+          class="btn btn-outline-light"
+          type="button"
+        >
+          <i class="fa-solid fa-user-plus me-2"></i>Register as Farmer
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="h-100 p-5 bg-light border rounded-3">
+        <h2>Looking for Fresh Produce?</h2>
+        <p>
+          Discover a wide variety of fruits, vegetables, meat, and other farm
+          products directly from local sellers. Find the freshest ingredients
+          near you.
+        </p>
+        <a
+          href="{{ url_for('main.browse_products') }}"
+          class="btn btn-outline-success"
+          type="button"
+        >
+          <i class="fa-solid fa-magnifying-glass me-2"></i>Start Browsing
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-5" />
+  <div class="text-center">
+    <h2>Why Choose Farm Market Hub?</h2>
+    <p class="lead">Connecting communities, supporting local farmers.</p>
+  </div>
+</div>
+{% endblock %}

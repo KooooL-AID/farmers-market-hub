@@ -1,0 +1,119 @@
+<!-- templates/farmer/dashboard.html -->
+{% extends "base.html" %} {% block title %}Farmer Dashboard{% endblock %} {%
+block content %}
+<h1 class="mb-4"><i class="fa-solid fa-seedling me-2"></i>Farmer Dashboard</h1>
+
+<div class="row">
+  <!-- Notes Section -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <i class="fa-solid fa-note-sticky me-2"></i>Notes
+      </div>
+      <div class="card-body">
+        <textarea
+          id="farmerNotes"
+          class="form-control"
+          rows="6"
+          placeholder="Write your farming notes here..."
+        ></textarea>
+        <button class="btn btn-success mt-2" onclick="saveNotes()">
+          Save Notes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calculator Section -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <i class="fa-solid fa-calculator me-2"></i>Calculator
+      </div>
+      <div class="card-body">
+        <input
+          type="text"
+          id="calcDisplay"
+          class="form-control mb-2"
+          readonly
+        />
+        <div class="d-grid gap-2 d-md-block">
+          <div class="btn-group mb-2" role="group">
+            <button class="btn btn-secondary" onclick="calcAppend('7')">
+              7
+            </button>
+            <button class="btn btn-secondary" onclick="calcAppend('8')">
+              8
+            </button>
+            <button class="btn btn-secondary" onclick="calcAppend('9')">
+              9
+            </button>
+            <button class="btn btn-warning" onclick="calcAppend('/')">/</button>
+          </div>
+          <div class="btn-group mb-2" role="group">
+            <button class="btn btn-secondary" onclick="calcAppend('4')">
+              4
+            </button>
+            <button class="btn btn-secondary" onclick="calcAppend('5')">
+              5
+            </button>
+            <button class="btn btn-secondary" onclick="calcAppend('6')">
+              6
+            </button>
+            <button class="btn btn-warning" onclick="calcAppend('*')">*</button>
+          </div>
+          <div class="btn-group mb-2" role="group">
+            <button class="btn btn-secondary" onclick="calcAppend('1')">
+              1
+            </button>
+            <button class="btn btn-secondary" onclick="calcAppend('2')">
+              2
+            </button>
+            <button class="btn btn-secondary" onclick="calcAppend('3')">
+              3
+            </button>
+            <button class="btn btn-warning" onclick="calcAppend('-')">-</button>
+          </div>
+          <div class="btn-group mb-2" role="group">
+            <button class="btn btn-secondary" onclick="calcAppend('0')">
+              0
+            </button>
+            <button class="btn btn-danger" onclick="calcClear()">C</button>
+            <button class="btn btn-success" onclick="calcEvaluate()">=</button>
+            <button class="btn btn-warning" onclick="calcAppend('+')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Notes functionality (LocalStorage)
+  function saveNotes() {
+    const notes = document.getElementById("farmerNotes").value;
+    localStorage.setItem("farmerNotes", notes);
+    alert("Notes saved locally!");
+  }
+  window.onload = function () {
+    const savedNotes = localStorage.getItem("farmerNotes");
+    if (savedNotes) document.getElementById("farmerNotes").value = savedNotes;
+  };
+
+  // Calculator functions
+  function calcAppend(val) {
+    document.getElementById("calcDisplay").value += val;
+  }
+  function calcClear() {
+    document.getElementById("calcDisplay").value = "";
+  }
+  function calcEvaluate() {
+    try {
+      const result = eval(document.getElementById("calcDisplay").value);
+      document.getElementById("calcDisplay").value = result;
+    } catch {
+      alert("Invalid expression");
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block title %}My Messages{% endblock %} {% block
+content %}
+<div class="container mt-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-envelope me-2"></i>My Messages</h1>
+    {# Optional: Button for new general message if not tied to product #}
+  </div>
+
+  {% include '_flash_messages.html' %} {% if conversations %}
+  <div class="list-group shadow-sm">
+    {% for conv in conversations %} {% set other_user =
+    conv.get_other_user(current_user.id) %} {% set last_msg = conv.last_message
+    %} {# Determine if there are unread messages for current_user in this
+    conversation #} {% set unread_messages_count = namespace(value=0) %} {% for
+    msg in conv.messages %} {% if msg.recipient_id == current_user.id and not
+    msg.is_read %} {% set unread_messages_count.value =
+    unread_messages_count.value + 1 %} {% endif %} {% endfor %}
+
+    <a
+      href="{{ url_for('main.view_conversation', conversation_id=conv.id) }}"
+      class="list-group-item list-group-item-action p-3 {% if unread_messages_count.value > 0 %}list-group-item-primary fw-bold{% endif %}"
+    >
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">
+          Conversation with: {{ other_user.username if other_user else 'Unknown
+          User' }} {% if unread_messages_count.value > 0 %}
+          <span class="badge bg-danger rounded-pill ms-2"
+            >{{ unread_messages_count.value }} New</span
+          >
+          {% endif %}
+        </h5>
+        <small class="text-muted"
+          >{{ conv.updated_at.strftime('%Y-%m-%d %H:%M') }}</small
+        >
+      </div>
+      {% if conv.product_listing %}
+      <p class="mb-1 text-muted small">
+        Regarding: <i class="fas fa-tag me-1"></i>{{ conv.product_listing.name
+        }}
+      </p>
+      {% endif %} {% if last_msg %}
+      <small class="text-muted d-block text-truncate" style="max-width: 70%">
+        {% if last_msg.sender_id == current_user.id %}You: {% endif %} {{
+        last_msg.content }}
+      </small>
+      {% else %}
+      <small class="text-muted">No messages yet.</small>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center" role="alert">
+    <i class="fas fa-comments me-2"></i> You have no messages yet. Start a
+    conversation from a product listing!
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

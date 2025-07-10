@@ -1,0 +1,104 @@
+{% extends "base.html" %} {% block content %}
+<section class="container mt-5">
+  <h1 class="text-primary mb-4">Your Shopping Cart</h1>
+
+  {% if cart_items %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Product</th>
+          <th>Farmer</th>
+          <th>Price/Unit</th>
+          <th style="width: 15%">Quantity</th>
+          <th>Subtotal</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr>
+          <td>
+            {% if item.product.image_filename %}
+            <img
+              src="{{ url_for('main.uploaded_file', filename=item.product.image_filename) }}"
+              alt="{{ item.product.name }}"
+              style="
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                margin-right: 10px;
+              "
+            />
+            {% endif %} {{ item.product.name }}
+            <small class="d-block text-muted"
+              >{{ item.product.category }}</small
+            >
+          </td>
+          <td>{{ item.product.farmer.username }}</td>
+          <td>
+            ₱{{ "%.2f"|format(item.product.price) }} / {{ item.product.unit }}
+          </td>
+          <td>
+            <form
+              action="{{ url_for('main.update_cart_item', item_id=item.id) }}"
+              method="POST"
+              class="d-flex"
+            >
+              <input
+                type="number"
+                name="quantity"
+                class="form-control form-control-sm me-2"
+                value="{{ item.quantity }}"
+                min="0.1"
+                step="0.1"
+                style="width: 80px"
+              />
+              <button type="submit" class="btn btn-sm btn-outline-primary">
+                Update
+              </button>
+            </form>
+          </td>
+          <td>₱{{ "%.2f"|format(item.product.price * item.quantity) }}</td>
+          <td>
+            <form
+              action="{{ url_for('main.remove_cart_item', item_id=item.id) }}"
+              method="POST"
+            >
+              <button
+                type="submit"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Remove this item?')"
+              >
+                &times;
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="text-end"><strong>Total:</strong></td>
+          <td><strong>₱{{ "%.2f"|format(cart_total) }}</strong></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="text-end mt-4">
+    <a href="{{ url_for('main.browse_products') }}" class="btn btn-secondary"
+      >Continue Shopping</a
+    >
+    <a href="{{ url_for('main.checkout') }}" class="btn btn-success"
+      >Proceed to Checkout</a
+    >
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center" role="alert">
+    Your cart is empty.
+    <a href="{{ url_for('main.browse_products') }}">Start shopping!</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

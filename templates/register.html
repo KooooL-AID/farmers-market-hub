@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Register Account{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4"><i class="fa-solid fa-user-plus me-2"></i>Create Your Account</h2>
+
+                    {# Display flash messages if any #}
+                    {% include '_flash_messages.html' %}
+
+                    <form method="POST" action="{{ url_for('main.register') }}" class="needs-validation" id="register-form" novalidate>
+                        {{ form.csrf_token if form and form.csrf_token }}
+
+                        <div class="mb-3">
+                            <label class="form-label">Register As: <span class="text-danger">*</span></label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="role" id="roleBuyer" value="buyer" required {% if form_data.get('role') == 'buyer' or not form_data.get('role') %}checked{% endif %}>
+                                    <label class="form-check-label" for="roleBuyer">
+                                        <i class="fa-solid fa-shopping-basket me-1"></i> Buyer
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="role" id="roleFarmer" value="farmer" required {% if form_data.get('role') == 'farmer' %}checked{% endif %}>
+                                    <label class="form-check-label" for="roleFarmer">
+                                        <i class="fa-solid fa-tractor me-1"></i> Farmer
+                                    </label>
+                                </div>
+                            </div>
+                             <div class="invalid-feedback d-block" id="role-feedback" style="display: none;">Please select a role.</div>
+                        </div>
+
+                        <div class="mb-3" id="farmerTypeGroup" style="display: {% if form_data.get('role') == 'farmer' %}block{% else %}none{% endif %};">
+                            <label for="farmer_type" class="form-label">Type of Farmer <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="farmer_type" name="farmer_type" placeholder="e.g., Vegetable Grower, Livestock Raiser" value="{{ form_data.get('farmer_type', '') }}" autocomplete="organization-title">
+                            <div class="invalid-feedback">Please specify your farmer type if registering as a farmer.</div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ form_data.get('username', '') }}" required autocomplete="username">
+                            <div class="invalid-feedback">Username is required.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ form_data.get('email', '') }}" required autocomplete="email">
+                             <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+
+                         <div class="mb-3">
+                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="password" name="password" required autocomplete="new-password">
+                             <div class="invalid-feedback">Password is required.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ form_data.get('phone_number', '') }}" autocomplete="tel">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="age" name="age" value="{{ form_data.get('age', '') }}" autocomplete="off">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender" autocomplete="sex">
+                                    <option value="" {% if not form_data.get('gender') %}selected{% endif %}>Prefer not to say</option>
+                                    <option value="Male" {% if form_data.get('gender') == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if form_data.get('gender') == 'Female' %}selected{% endif %}>Female</option>
+                                    <option value="Other" {% if form_data.get('gender') == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" autocomplete="street-address">{{ form_data.get('address', '') }}</textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg" type="submit">Register</button>
+                        </div>
+
+                    </form>
+
+                     <p class="mt-4 text-center text-muted">
+                        Already have an account? <a href="{{ url_for('main.login') }}">Log In</a>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_end_extra %}
+<script>
+// Show/hide Farmer Type field based on role selection
+const farmerTypeGroup = document.getElementById('farmerTypeGroup');
+const farmerTypeInput = document.getElementById('farmer_type');
+const roleRadios = document.querySelectorAll('input[name="role"]');
+const registerForm = document.getElementById('register-form');
+const roleFeedback = document.getElementById('role-feedback');
+
+function toggleFarmerType() {
+    let selectedRole = document.querySelector('input[name="role"]:checked');
+    if (selectedRole && selectedRole.value === 'farmer') {
+        farmerTypeGroup.style.display = 'block';
+        farmerTypeInput.required = true; // Make required only if farmer role selected
+    } else {
+        farmerTypeGroup.style.display = 'none';
+        farmerTypeInput.required = false; // Not required otherwise
+        farmerTypeInput.value = ''; // Clear value if switching away from farmer
+    }
+     // Check if a role is selected for validation feedback
+    roleFeedback.style.display = selectedRole ? 'none' : 'block';
+}
+
+roleRadios.forEach(radio => {
+    radio.addEventListener('change', toggleFarmerType);
+});
+
+// Initial check in case the page loads with 'farmer' pre-selected (e.g., due to validation error)
+document.addEventListener('DOMContentLoaded', toggleFarmerType);
+
+// Bootstrap validation script (Optional but recommended)
+(function () {
+  'use strict'
+  var forms = document.querySelectorAll('.needs-validation')
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        // Explicitly check role selection before submitting
+        let selectedRole = document.querySelector('input[name="role"]:checked');
+        if (!selectedRole) {
+             roleFeedback.style.display = 'block';
+             event.preventDefault();
+             event.stopPropagation();
+        } else {
+             roleFeedback.style.display = 'none';
+        }
+        // Check farmer type requirement if farmer role is selected
+        if (selectedRole && selectedRole.value === 'farmer' && !farmerTypeInput.value.trim()) {
+             farmerTypeInput.classList.add('is-invalid'); // Manually add invalid class if needed
+             // Bootstrap's checkValidity might handle this if 'required' is set correctly
+             // Also prevent submission if farmer type is missing
+             event.preventDefault();
+             event.stopPropagation();
+        } else {
+             farmerTypeInput.classList.remove('is-invalid');
+        }
+
+
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+{% endblock %}

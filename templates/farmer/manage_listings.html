@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Manage My Product Listings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <h1>
+            <i class="fas fa-seedling me-2"></i>Manage My Listings
+        </h1>
+        <a href="{{ url_for('main.farmer_add_listing') }}" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Add New Listing
+        </a>
+    </div>
+
+    {# Display flash messages if any #}
+    {% include '_flash_messages.html' %}
+
+    {% if listings %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for listing in listings %}
+            <div class="col">
+                <div class="card h-100 shadow-sm listing-card">
+                    {# Card Header with Status Badge #}
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Added: {{ listing.created_at.strftime('%Y-%m-%d') }}</small>
+                        {% set status_class = {
+                            'active': 'bg-success',
+                            'inactive': 'bg-secondary',
+                            'sold_out': 'bg-warning text-dark',
+                            'rejected': 'bg-danger',
+                            'pending_approval': 'bg-info'
+                        }.get(listing.status, 'bg-light text-dark') %}
+                        <span class="badge rounded-pill {{ status_class }}">{{ listing.status.replace('_', ' ') | title }}</span>
+                    </div>
+
+                    {# Card Image #}
+                    <div class="listing-card-img-container">
+                        {% if listing.image_filename %}
+                            <img src="{{ url_for('main.uploaded_file', filename=listing.image_filename) }}" class="card-img-top listing-card-img" alt="{{ listing.name }}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/EBF3E8/777?text=Image+Error';">
+                        {% else %}
+                            <img src="https://placehold.co/600x400/EFEFEF/AAAAAA?text=No+Image" class="card-img-top listing-card-img" alt="No image available">
+                        {% endif %}
+                    </div>
+
+                    {# Card Body #}
+                    <div class="card-body">
+                        <h5 class="card-title listing-card-title" title="{{ listing.name }}">{{ listing.name }}</h5>
+                        <p class="card-text mb-1"><small class="text-muted">{{ listing.category }}</small></p>
+                        <p class="card-text listing-card-price">
+                            <strong>₱{{ "%.2f"|format(listing.price) }}</strong> / {{ listing.unit }}
+                        </p>
+                        <p class="card-text listing-card-stock">
+                             <small {% if listing.quantity_available == 0 %}class="text-danger fw-bold"{% elif listing.quantity_available < 10 %}class="text-warning fw-bold"{% else %}class="text-muted"{% endif %}>
+                                Qty: {{ listing.quantity_available }}
+                             </small>
+                        </p>
+                    </div>
+
+                    {# Card Footer with Actions #}
+                    <div class="card-footer bg-light d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('main.farmer_edit_listing', listing_id=listing.id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                            <i class="fas fa-pencil me-1"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteListingModal" data-listing-id="{{ listing.id }}" data-listing-name="{{ listing.name }}" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        {# Message if no listings exist #}
+        <div class="alert alert-info text-center" role="alert">
+            <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i>No Listings Yet!</h4>
+            <p>You haven't listed any products for sale.</p>
+            <hr>
+            <p class="mb-0">
+                <a href="{{ url_for('main.farmer_add_listing') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Add Your First Listing Now!
+                </a>
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+{# Keep the Delete Confirmation Modal #}
+<div class="modal fade" id="deleteListingModal" tabindex="-1" aria-labelledby="deleteListingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteListingModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the listing for "<strong id="delete-listing-name"></strong>"? This action cannot be undone. The associated image file (if any) will also be deleted.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="delete-listing-form" method="POST" action="" style="display: inline;">
+          {# Add CSRF token if you are using Flask-WTF #}
+          {# <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}"> #}
+          <button type="submit" class="btn btn-danger">Delete Listing</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block body_end_extra %}
+{# Keep delete modal script #}
+<script>
+  var deleteModal = document.getElementById('deleteListingModal');
+  if (deleteModal) {
+      deleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var listingId = button.getAttribute('data-bs-listing-id');
+        var listingName = button.getAttribute('data-bs-listing-name');
+        var modalBodyName = deleteModal.querySelector('#delete-listing-name');
+        var deleteForm = deleteModal.querySelector('#delete-listing-form');
+
+        if (modalBodyName) {
+            modalBodyName.textContent = listingName;
+        }
+        if (deleteForm) {
+            // Construct the URL dynamically using a base URL structure
+            let baseUrl = "{{ url_for('main.farmer_delete_listing', listing_id=0) }}";
+            deleteForm.action = baseUrl.replace('/0', '/' + listingId);
+        }
+      });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %} {% block title %}Farmer Notes{% endblock %} {% block
+content %}
+<h2 class="mb-4">
+  <i class="fa-solid fa-note-sticky me-2"></i>My Farming Notes
+</h2>
+<form method="POST">
+  <div class="mb-3">
+    <textarea
+      name="content"
+      class="form-control"
+      rows="10"
+      placeholder="Write your notes here..."
+    >
+{{ note.content if note else '' }}</textarea
+    >
+  </div>
+  <button type="submit" class="btn btn-success">
+    <i class="fa-solid fa-floppy-disk me-2"></i>Save Note
+  </button>
+</form>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %} {% block title %}Edit Market Price - Admin{% endblock
+%} {% block content %}
+<div class="container mt-4 mb-5">
+  <div class="card shadow-sm border-primary">
+    <div class="card-header bg-primary text-white">
+      <h1 class="mb-0 h4">
+        <i class="fas fa-dollar-sign me-2"></i>Edit Official Market Price
+      </h1>
+    </div>
+    <div class="card-body p-4">
+      <p class="card-text text-muted mb-4">
+        Modify the details for the market price:
+        <strong class="text-dark">{{ price.name }}</strong>. Fields marked with
+        <span class="text-danger">*</span> are required.
+      </p>
+
+      {# Display flash messages if any #} {% include '_flash_messages.html' %}
+
+      <form
+        method="POST"
+        action="{{ url_for('main.edit_price', price_id=price.id) }}"
+        class="needs-validation"
+        novalidate
+      >
+        {# Add CSRF token if you are using Flask-WTF and have it configured #}
+        {#
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token() if csrf_token else '' }}"
+        />
+        #} {# Product Information Section #}
+        <fieldset class="mb-4">
+          <legend class="h6 mb-3 border-bottom pb-2 text-primary">
+            <i class="fas fa-tag me-1"></i> Price Details
+          </legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="name" class="form-label"
+                >Product Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                value="{{ form_data.get('name', price.name) }}"
+                required
+                autocomplete="off"
+              />
+              <div class="invalid-feedback">Product name is required.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="category" class="form-label"
+                >Category <span class="text-danger">*</span></label
+              >
+              {# Consider making this a select if categories are fixed, or use a
+              datalist for suggestions #}
+              <input
+                type="text"
+                class="form-control"
+                id="category"
+                name="category"
+                value="{{ form_data.get('category', price.category) }}"
+                required
+                placeholder="e.g., Vegetable, Meat, Grain"
+              />
+              <div class="invalid-feedback">Please enter a category.</div>
+            </div>
+          </div>
+        </fieldset>
+
+        {# Pricing & Unit Section #}
+        <fieldset class="mb-4">
+          <legend class="h6 mb-3 border-bottom pb-2 text-primary">
+            <i class="fas fa-balance-scale me-1"></i> Pricing & Unit
+          </legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="price" class="form-label"
+                >Price (PHP) <span class="text-danger">*</span></label
+              >
+              <div class="input-group">
+                <span class="input-group-text">₱</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="form-control"
+                  id="price"
+                  name="price"
+                  value="{{ form_data.get('price', price.price) }}"
+                  required
+                  autocomplete="off"
+                />
+                <div class="invalid-feedback">
+                  Please enter a valid price (e.g., 50.00).
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="unit" class="form-label"
+                >Unit <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="unit"
+                name="unit"
+                placeholder="e.g., kg, piece, bundle, liter"
+                value="{{ form_data.get('unit', price.unit) }}"
+                required
+                autocomplete="off"
+              />
+              <div class="invalid-feedback">
+                Please specify the unit (e.g., kg, piece).
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        {# Location Section #}
+        <fieldset class="mb-4">
+          <legend class="h6 mb-3 border-bottom pb-2 text-primary">
+            <i class="fas fa-map-marker-alt me-1"></i> Location (Optional)
+          </legend>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="location" class="form-label">Market Location</label>
+              <input
+                type="text"
+                class="form-control"
+                id="location"
+                name="location"
+                value="{{ form_data.get('location', price.location if price.location else '') }}"
+                placeholder="e.g., Daraga Public Market, Legazpi Sunday Market"
+              />
+              <div class="form-text">
+                Specify the market or area where this price is typically
+                observed.
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <hr class="my-4" />
+
+        <div class="d-flex justify-content-end gap-2">
+          <a
+            href="{{ url_for('main.admin_manage_prices') }}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fas fa-times me-1"></i> Cancel
+          </a>
+          <button class="btn btn-primary" type="submit">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+    {# End card-body #}
+  </div>
+  {# End card #}
+</div>
+
+{% endblock %} {% block body_end_extra %} {# Bootstrap validation script -
+include if not globally available or in base.html #}
+<script>
+  (function () {
+    "use strict";
+    var forms = document.querySelectorAll(".needs-validation");
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        },
+        false
+      );
+    });
+  })();
+</script>
+{% endblock %}

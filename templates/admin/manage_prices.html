@@ -1,0 +1,140 @@
+{% extends "base.html" %} {% block title %}Manage Official Market Prices{%
+endblock %} {% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+      <i class="fa-solid fa-dollar-sign me-2"></i>Manage Official Market Prices
+    </h1>
+    <a href="{{ url_for('main.add_price') }}" class="btn btn-success">
+      <i class="fa-solid fa-plus me-1"></i> Add New Price
+    </a>
+  </div>
+
+  {% if prices %}
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Price (PHP)</th>
+          <th>Unit</th>
+          <th>Location</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for price in prices %}
+        <tr>
+          <td>{{ price.name }}</td>
+          <td>{{ price.category }}</td>
+          <td>₱{{ "%.2f"|format(price.price) }}</td>
+          <td>{{ price.unit }}</td>
+          <td>{{ price.location or 'N/A' }}</td>
+          <td>{{ price.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <div class="btn-group" role="group" aria-label="Price Actions">
+              <a
+                href="{{ url_for('main.edit_price', price_id=price.id) }}"
+                class="btn btn-sm btn-outline-primary"
+                title="Edit"
+              >
+                <i class="fa-solid fa-pencil"></i>
+              </a>
+              <button
+  type="button"
+  class="btn btn-sm btn-outline-danger"
+  data-bs-toggle="modal"
+  data-bs-target="#deletePriceModal"
+  data-bs-price-id="{{ price.id }}"  {# CORRECTED: Use data-bs-price-id #}
+  data-bs-price-name="{{ price.name }}" {# CORRECTED: Use data-bs-price-name #}
+  title="Delete"
+>
+  <i class="fa-solid fa-trash"></i>
+</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info" role="alert">
+    No official market prices have been added yet.
+    <a href="{{ url_for('main.add_price') }}" class="alert-link"
+      >Add the first price now!</a
+    >
+  </div>
+  {% endif %}
+</div>
+
+<div
+  class="modal fade"
+  id="deletePriceModal"
+  tabindex="-1"
+  aria-labelledby="deletePriceModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deletePriceModalLabel">Confirm Deletion</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the market price entry for "<strong
+          id="delete-price-name"
+        ></strong
+        >"? This action cannot be undone. Associated price history might also be
+        removed.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form
+          id="delete-price-form"
+          method="POST"
+          action=""
+          style="display: inline"
+        >
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() if csrf_token else '' }}"
+          />
+          <button type="submit" class="btn btn-danger">Delete Price</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block body_end_extra %}
+<script>
+  // Script to set the delete form action dynamically for prices
+  var deletePriceModal = document.getElementById("deletePriceModal");
+  deletePriceModal.addEventListener("show.bs.modal", function (event) {
+    var button = event.relatedTarget;
+    var priceId = button.getAttribute("data-bs-price-id");
+    var priceName = button.getAttribute("data-bs-price-name");
+    var modalBodyName = deletePriceModal.querySelector("#delete-price-name");
+    var deleteForm = deletePriceModal.querySelector("#delete-price-form");
+
+    modalBodyName.textContent = priceName;
+    deleteForm.action =
+      "{{ url_for('main.delete_price', price_id=0) }}".replace("0", priceId);
+  });
+
+  // Optional: Add JavaScript for fetching and displaying price history in the modal
+  // var priceHistoryModal = document.getElementById('priceHistoryModal');
+  // priceHistoryModal.addEventListener('show.bs.modal', function (event) { ... });
+</script>
+{% endblock %}

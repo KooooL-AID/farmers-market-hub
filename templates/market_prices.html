@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block title %}Presyo sa Palengke{% endblock %} {%
+block content %}
+<div class="container py-4">
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-success mb-3">
+      <i class="fa-solid fa-basket-shopping me-2"></i>Presyo ng mga Bilihin sa
+      Palengke
+    </h1>
+
+    <div
+      class="alert alert-warning d-inline-flex align-items-center"
+      role="alert"
+    >
+      <i class="fa-solid fa-info-circle me-2"></i>
+      <div>Ang presyo ay nagbabago depende sa suplay at demand</div>
+    </div>
+
+    <p class="text-muted">
+      <i class="fa-solid fa-clock me-1"></i>
+      {{ current_datetime or 'Timestamp not available' }}
+    </p>
+  </div>
+
+  <div class="card shadow-sm mb-5">
+    <div class="card-body p-4">
+      <form method="GET" action="{{ url_for('main.market_prices') }}">
+        <div class="input-group input-group-lg">
+          <input
+            type="text"
+            name="search"
+            class="form-control form-control-lg border-success"
+            placeholder="Maghanap ng produkto (hal. bigas, gulay, karne)..."
+            value="{{ search or '' }}"
+          />
+          <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-magnifying-glass me-1"></i> Hanapin
+          </button>
+          {% if search %}
+          <a
+            href="{{ url_for('main.market_prices') }}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fa-solid fa-rotate-left me-1"></i> Linisin
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+          <thead class="table-success">
+            <tr>
+              <th class="fs-5">Produkto</th>
+              <th class="fs-5">Presyo</th>
+              <th class="fs-5">Yunit</th>
+              <th class="fs-5">Kategorya</th>
+              <th class="fs-5">Lokasyon</th>
+              <th class="fs-5">Huling Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if market_prices %} {% for price in market_prices %}
+            <tr>
+              <td class="fs-5 fw-bold">{{ price.name }}</td>
+              <td class="fs-5 text-danger fw-bold">
+                ₱{{ "%.2f"|format(price.price) }}
+              </td>
+              <td class="fs-5">{{ price.unit }}</td>
+              <td class="fs-5">
+                <span class="badge bg-light text-dark"
+                  >{{ price.category or 'N/A' }}</span
+                >
+              </td>
+              <td class="fs-5">{{ price.location or 'N/A' }}</td>
+              <td class="fs-5 text-muted">
+                {{ price.updated_at.strftime('%Y-%m-%d %H:%M') if
+                price.updated_at else 'N/A' }}
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="6" class="text-center py-5">
+                <i class="fa-solid fa-box-open display-5 text-muted mb-3"></i>
+                <p class="h4 text-muted">Walang nakitang resulta</p>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table-hover tbody tr:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+  }
+  .badge {
+    padding: 0.35em 0.65em;
+    font-weight: 500;
+  }
+</style>
+{% endblock %}

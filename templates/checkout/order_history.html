@@ -1,0 +1,60 @@
+{% extends "base.html" %} {% block title %}Order History{% endblock %} {% block
+content %}
+<section class="container mt-5 mb-5">
+  <h1 class="text-primary mb-4">Your Order History</h1>
+
+  {% if orders %} {% for order in orders %}
+  <div class="card mb-4 shadow-sm">
+    <div
+      class="card-header d-flex justify-content-between align-items-center flex-wrap"
+    >
+      <span>Order ID: <strong>{{ order.id }}</strong></span>
+      <span>Date: {{ order.created_at.strftime('%Y-%m-%d') }}</span>
+      {# Dynamically set badge color based on status #}
+      <span
+        class="badge {% if order.status == 'Completed' %}bg-success {% elif order.status == 'Shipped' %}bg-info {% elif order.status == 'Processing' %}bg-primary {% elif order.status == 'Pending' %}bg-warning text-dark {% elif order.status == 'Cancelled' %}bg-danger {% else %}bg-secondary{% endif %}"
+      >
+        {{ order.status }}
+      </span>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        {% for item in order.items %} {# Loop through items eager-loaded in the
+        route #}
+        <li class="list-group-item d-flex justify-content-between">
+          <span
+            >{{ item.product_name }} ({{ item.quantity }} {{ item.product_unit
+            }} x ₱{{ "%.2f"|format(item.price_per_unit) }})</span
+          >
+          <span>₱{{ "%.2f"|format(item.subtotal) }}</span>
+        </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between bg-light">
+          <strong>Total:</strong>
+          <strong>₱{{ "%.2f"|format(order.total_price) }}</strong>
+        </li>
+      </ul>
+      <div class="mt-3">
+        <h6>Shipping To:</h6>
+        <p class="mb-0">{{ order.recipient_name }}</p>
+        <p class="mb-0">{{ order.shipping_address }}</p>
+        <p class="mb-0">{{ order.recipient_phone }}</p>
+      </div>
+    </div>
+    <div class="card-footer text-end">
+      {# Link to the detailed order confirmation page #}
+      <a
+        href="{{ url_for('main.order_confirmation', order_id=order.id) }}"
+        class="btn btn-sm btn-outline-info"
+        >View Details</a
+      >
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <div class="alert alert-info" role="alert">
+    You haven't placed any orders yet.
+    <a href="{{ url_for('main.browse_products') }}">Start shopping!</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

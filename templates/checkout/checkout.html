@@ -1,0 +1,244 @@
+{% extends "base.html" %} {# {% import "bootstrap_wtf.html" as wtf %} #} {#
+Optional: Use Flask-WTF for forms #} {% block title %}Checkout{% endblock %} {%
+block content %}
+<section class="container mt-5 mb-5">
+  <h1 class="text-primary mb-4">Checkout</h1>
+
+  <div class="row g-5">
+    <div class="col-md-5 col-lg-4 order-md-last">
+      <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-success">Your cart</span>
+        {# Make sure cart_items is passed correctly #}
+        <span class="badge bg-success rounded-pill"
+          >{{ cart_items|length if cart_items else 0 }}</span
+        >
+      </h4>
+      <ul class="list-group mb-3">
+        {% if cart_items %} {% for item in cart_items %}
+        <li class="list-group-item d-flex justify-content-between lh-sm">
+          <div>
+            <h6 class="my-0">{{ item.product.name }}</h6>
+            <small class="text-muted"
+              >Qty: {{ item.quantity }} {{ item.product.unit }}</small
+            >
+          </div>
+          {# Calculate item subtotal #}
+          <span class="text-muted"
+            >₱{{ "%.2f"|format(item.product.price * item.quantity) }}</span
+          >
+        </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between bg-light">
+          <span class="text-success">
+            {# Updated label to PHP #}
+            <strong>Total (PHP)</strong>
+          </span>
+          {# Display cart_total passed from the route #}
+          <strong class="text-success">₱{{ "%.2f"|format(cart_total) }}</strong>
+        </li>
+        {% else %}
+        <li class="list-group-item">Your cart is empty.</li>
+        {% endif %}
+      </ul>
+      <a
+        href="{{ url_for('main.view_cart') }}"
+        class="btn btn-sm btn-outline-secondary"
+        >Edit Cart</a
+      >
+    </div>
+
+    <div class="col-md-7 col-lg-8">
+      <h4 class="mb-3">Shipping address & Payment</h4>
+
+      {# Display flash messages #} {% include '_flash_messages.html' %} {# Use
+      POST method to submit to the same '/checkout' route #}
+      <form
+        method="POST"
+        action="{{ url_for('main.checkout') }}"
+        class="needs-validation"
+        novalidate
+      >
+        {# Add CSRF token if using Flask-WTF #} {# {{ form.csrf_token }} #}
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="recipient_name" class="form-label"
+              >Recipient Name <span class="text-danger">*</span></label
+            >
+            {# Pre-fill value from form_data passed on GET or POST error #}
+            <input
+              type="text"
+              class="form-control"
+              id="recipient_name"
+              name="recipient_name"
+              value="{{ form_data.get('recipient_name', '') }}"
+              required
+            />
+            <div class="invalid-feedback">Recipient name is required.</div>
+          </div>
+
+          <div class="col-12">
+            <label for="recipient_phone" class="form-label"
+              >Phone Number <span class="text-danger">*</span></label
+            >
+            <input
+              type="tel"
+              class="form-control"
+              id="recipient_phone"
+              name="recipient_phone"
+              value="{{ form_data.get('recipient_phone', '') }}"
+              placeholder="e.g., 0917xxxxxxx"
+              required
+            />
+            <div class="invalid-feedback">Valid phone number is required.</div>
+          </div>
+
+          <div class="col-12">
+            <label for="shipping_address" class="form-label"
+              >Shipping Address <span class="text-danger">*</span></label
+            >
+            <textarea
+              class="form-control"
+              id="shipping_address"
+              name="shipping_address"
+              rows="3"
+              placeholder="Complete address including Barangay, City/Municipality, Province"
+              required
+            >
+{{ form_data.get('shipping_address', '') }}</textarea
+            >
+            <div class="invalid-feedback">
+              Please enter your shipping address.
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <h4 class="mb-3">Payment Method <span class="text-danger">*</span></h4>
+
+        <div class="my-3">
+          <div class="form-check mb-2">
+            <input id="cod" name="payment_method" type="radio"
+            class="form-check-input" value="cod" required {% if
+            form_data.get('payment_method') == 'cod' %}checked{% endif %}>
+            <label class="form-check-label" for="cod">
+              {# Added Font Awesome Icon #}
+              <i class="fas fa-money-bill-wave text-success me-2"></i>Cash on
+              Delivery (COD)
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input id="gcash" name="payment_method" type="radio"
+            class="form-check-input" value="gcash_simulated" required {% if
+            form_data.get('payment_method') == 'gcash_simulated' %}checked{%
+            endif %}>
+            <label class="form-check-label" for="gcash">
+              {# Added Font Awesome Icon (using wallet as alternative) #}
+              <i class="fas fa-wallet text-primary me-2"></i>GCash (Simulated)
+            </label>
+            <small class="d-block text-muted ms-4 ps-1"
+              >Payment will be simulated for this demo.</small
+            >
+          </div>
+          <div class="form-check mb-2">
+            <input id="paymaya" name="payment_method" type="radio"
+            class="form-check-input" value="paymaya_simulated" required {% if
+            form_data.get('payment_method') == 'paymaya_simulated' %}checked{%
+            endif %}>
+            <label class="form-check-label" for="paymaya">
+              {# Added Font Awesome Icon (using credit-card as alternative) #}
+              <i class="fas fa-credit-card text-info me-2"></i>PayMaya
+              (Simulated)
+            </label>
+            <small class="d-block text-muted ms-4 ps-1"
+              >Payment will be simulated for this demo.</small
+            >
+          </div>
+          {# Feedback div for payment selection validation #}
+          <div
+            class="invalid-feedback d-block"
+            id="payment-feedback"
+            style="display: none"
+          >
+            Please select a payment method.
+          </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <button
+          class="w-100 btn btn-primary btn-lg"
+          type="submit"
+          {%
+          if
+          not
+          cart_items
+          %}disabled{%
+          endif
+          %}
+        >
+          Place Order
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{# Bootstrap Form Validation Script (include if not in base.html) #}
+<script>
+  (function () {
+    "use strict";
+    var forms = document.querySelectorAll(".needs-validation");
+    var paymentRadios = document.querySelectorAll(
+      'input[name="payment_method"]'
+    );
+    var paymentFeedback = document.getElementById("payment-feedback");
+
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          // Check if a payment method is selected
+          let paymentSelected = false;
+          paymentRadios.forEach(function (radio) {
+            if (radio.checked) {
+              paymentSelected = true;
+            }
+          });
+
+          // Show feedback and prevent submission if no payment method selected
+          if (!paymentSelected) {
+            paymentFeedback.style.display = "block";
+            // Optionally scroll to payment section:
+            // document.getElementById('cod').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            event.preventDefault();
+            event.stopPropagation();
+          } else {
+            paymentFeedback.style.display = "none";
+          }
+
+          // Perform standard Bootstrap validation
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add("was-validated");
+        },
+        false
+      );
+    });
+
+    // Hide payment feedback when a radio is selected
+    paymentRadios.forEach(function (radio) {
+      radio.addEventListener("change", function () {
+        if (this.checked) {
+          paymentFeedback.style.display = "none";
+        }
+      });
+    });
+  })();
+</script>
+
+{% endblock %}

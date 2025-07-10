@@ -1,0 +1,20 @@
+<!-- templates/errors/500.html -->
+{% extends "base.html" %} {% block title %}500 Server Error{% endblock %} {%
+block content %}
+<div class="container mt-5 text-center">
+  <div class="error-template">
+    <h1>500 - Internal Server Error</h1>
+    <div class="error-details my-4">
+      <p>
+        Sorry, something went wrong on our end. Our technical team has been
+        notified.
+      </p>
+    </div>
+    <div class="error-actions">
+      <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+        <i class="fas fa-home"></i> Back to Home
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
