@@ -219,7 +219,8 @@ class CartItem(db.Model):
     __tablename__ = 'cart_item'
     id = db.Column(db.Integer, primary_key=True)
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id', ondelete='CASCADE'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product_listing.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product_listing.id', ondelete='SET NULL'), nullable=True)
+    product = db.relationship('ProductListing', passive_deletes=True)
     quantity = db.Column(db.Float, nullable=False, default=1.0) # Or db.Integer if whole units only
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
 

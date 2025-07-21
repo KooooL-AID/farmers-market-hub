@@ -376,11 +376,24 @@ def farmer_edit_listing(listing_id):
 @login_required
 def farmer_delete_listing(listing_id):
     listing = ProductListing.query.get_or_404(listing_id)
-    if not current_user.is_farmer or listing.user_id != current_user.id: abort(403)
-    image_to_delete = listing.image_filename # Get filename before deleting DB record
+
+    # ✅ Check ownership
+    if not current_user.is_farmer or listing.user_id != current_user.id:
+        abort(403)
+
+    # ✅ Check if the product is still in any cart before deletion
+    cart_items_using_listing = CartItem.query.filter_by(product_id=listing.id).count()
+    if cart_items_using_listing > 0:
+        flash("❌ Cannot delete listing: It is still in a user's cart.", "danger")
+        return redirect(url_for('main.farmer_manage_listings'))
+
+    # Proceed to delete the listing
+    image_to_delete = listing.image_filename
     try:
-        db.session.delete(listing); db.session.commit()
-        # --- Delete Image File After DB Commit ---
+        db.session.delete(listing)
+        db.session.commit()
+
+        # ✅ Delete the image file (after DB commit)
         if image_to_delete:
             try:
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], image_to_delete)
@@ -388,11 +401,15 @@ def farmer_delete_listing(listing_id):
                     os.remove(filepath)
                     print(f"Deleted image file: {filepath}")
             except Exception as img_del_e:
-                 print(f"Error deleting image file {image_to_delete}: {img_del_e}")
-        # --- End Delete Image File ---
-        flash('Product listing deleted successfully!', 'success')
+                print(f"Error deleting image file {image_to_delete}: {img_del_e}")
+
+        flash('✅ Product listing deleted successfully!', 'success')
+
     except Exception as e:
-        db.session.rollback(); flash(f'Error deleting listing: {str(e)}', 'danger'); print(f"Delete Listing Error: {e}")
+        db.session.rollback()
+        flash(f'❌ Error deleting listing: {str(e)}', 'danger')
+        print(f"Delete Listing Error: {e}")
+
     return redirect(url_for('main.farmer_manage_listings'))
 
 
