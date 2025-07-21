@@ -142,65 +142,7 @@ Farm Market Hub is a web application designed to connect local farmers directly 
     ```
     The application should now be running, typically at `http://127.0.0.1:5000/`.
 
-## 5. Project Structure
-
-farm-market-hub/
-├── app.py # Flask application factory and core initialization
-├── config.py # Configuration settings (database URI, secret key, etc.)
-├── extensions.py # Flask extension instantiations (db, login_manager, migrate)
-├── models.py # SQLAlchemy database models
-├── routes.py # Flask routes and view functions (Blueprint: main_bp)
-├── commands.py # Custom Flask CLI commands (e.g., create_admin)
-├── requirements.txt # Python package dependencies
-├── .env # Environment variables (not committed to Git)
-├── instance/ # Instance-specific configuration (if used)
-│ └── uploads/ # (If UPLOAD_FOLDER is configured here)
-├── static/
-│ ├── css/
-│ │ └── styles.css # Custom stylesheets
-│ ├── images/
-│ │ └── market-bg.jpg # Background image, placeholder images, etc.
-│ └── js/ # Custom JavaScript files (if any)
-├── templates/
-│ ├── admin/ # Templates for the admin panel
-│ │ ├── admin_dashboard.html
-│ │ ├── manage_listings.html
-│ │ ├── manage_prices.html
-│ │ ├── add_price.html
-│ │ ├── edit_price.html
-│ │ └── users.html
-│ │ └── edit_user.html
-│ ├── auth/ # (If you had separate auth templates, e.g., login.html, register.html - currently they are top-level)
-│ ├── cart/
-│ │ └── view_cart.html
-│ ├── checkout/
-│ │ ├── checkout.html
-│ │ └── order_confirmation.html
-│ │ └── order_history.html
-│ ├── errors/ # Error page templates (403, 404, 500)
-│ │ ├── 403.html
-│ │ ├── 404.html
-│ │ └── 500.html
-│ ├── farmer/ # Templates for farmer-specific views
-│ │ ├── manage_listings.html
-│ │ ├── add_listing.html
-│ │ ├── edit_listing.html
-│ │ └── notes.html
-│ ├── messages/ # Templates for the messaging system
-│ │ ├── conversation_list.html
-│ │ └── conversation_detail.html
-│ ├── base.html # Base template for common layout
-│ ├── index.html # Homepage
-│ ├── login.html
-│ ├── market_prices.html
-│ ├── products_browse.html
-│ ├── register.html
-│ └── \_flash_messages.html # Partial for displaying flashed messages
-├── uploads/ # Directory for user-uploaded files (e.g., product images)
-│ └── products/ # (If UPLOAD_FOLDER is set to 'uploads/products')
-└── venv/ # Python virtual environment (not committed to Git)
-
-## 6. Key Functionalities in Detail
+## 5. Key Functionalities in Detail
 
 ### User Authentication
 
