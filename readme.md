@@ -81,7 +81,7 @@ Farm Market Hub is a web application designed to connect local farmers directly 
 1.  **Clone the Repository (Example):**
 
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/KooooL-AID/farmers-market-hub
     cd farm-market-hub
     ```
 
@@ -92,7 +92,7 @@ Farm Market Hub is a web application designed to connect local farmers directly 
     ```bash
     python -m venv .venv
     # On Windows
-    venv\Scripts\activate
+    .\.venv\Scripts\activate
     # On macOS/Linux
     source venv/bin/activate
     ```
